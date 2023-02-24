@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/miladj/websockify-go/websockify"
+	"github.com/Startfield/websockify-go/websockify"
 )
 
 type appConfig struct {
@@ -59,7 +59,8 @@ func main() {
 		config.webServer = true
 		fileHandler = http.FileServer(http.Dir(*webdir))
 	}
-	http.HandleFunc("/", websockify.WS)
+	wsock := websockify.Websockify{Target: config.targetAdd}
+	http.HandleFunc("/", wsock.WSNoErr)
 	if len(*cert) > 0 {
 		if err := http.ListenAndServeTLS(listenadd, *cert, *key, nil); err != nil {
 			log.Fatal(err)

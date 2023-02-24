@@ -10,7 +10,15 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func WS(w http.ResponseWriter, r *http.Request, target string) (err error) {
+type Websockify struct {
+	Target string
+}
+
+// WS is the main function of the websockify package
+// It handles the websocket connection and proxies it to the target
+// It returns an error if something goes wrong
+// Set the target in the websockify struct, this is for compatibility with http.HandleFunc
+func (c Websockify) WS(w http.ResponseWriter, r *http.Request) (err error) {
 	// Upgrade connection
 	upgrader := websocket.Upgrader{}
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -21,7 +29,7 @@ func WS(w http.ResponseWriter, r *http.Request, target string) (err error) {
 	log.Debugf("Rec connection from %s", conn.RemoteAddr())
 	defer log.Debugf("Close connection from %s", conn.RemoteAddr())
 	defer conn.Close()
-	tcpconn, err := net.Dial("tcp", target)
+	tcpconn, err := net.Dial("tcp", c.Target)
 	if err != nil {
 		return err
 	}
@@ -56,5 +64,15 @@ func WS(w http.ResponseWriter, r *http.Request, target string) (err error) {
 		if n == 0 {
 			return fmt.Errorf("errWriteEmpty")
 		}
+	}
+}
+
+// WSNoErr is a wrapper for WS that logs errors instead of returning them
+// This is useful for http.HandleFunc and should never be used in any other situation
+// This will NOT panic on errors, which may be undesirable
+func (c Websockify) WSNoErr(w http.ResponseWriter, r *http.Request) {
+	err := c.WS(w, r)
+	if err != nil {
+		log.Errorln(err)
 	}
 }

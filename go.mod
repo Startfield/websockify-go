@@ -1,4 +1,4 @@
-module github.com/miladj/websockify-go
+module github.com/Startfield/websockify-go
 
 go 1.16
 

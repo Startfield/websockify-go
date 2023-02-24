@@ -1,5 +1,8 @@
 websockify-go is simple implementation of [websockify](https://github.com/novnc/websockify) in golang.
 
+This fork moves the bulk of the code to an external package for use in other projects, the core functionality
+should be the same as the original.
+
 It uses [Gorilla WebSocket](https://github.com/gorilla/websocket) (thanks for great work)
 
 ```

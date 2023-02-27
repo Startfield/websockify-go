@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/gidoBOSSftw5731/log"
 
@@ -24,6 +25,17 @@ func (c Websockify) WS(w http.ResponseWriter, r *http.Request) (err error) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err
+	}
+
+	// check if sec-websocket-protocol is set
+	// if it is, we need to send it back
+	// this is a workaround for some chrome
+	if len(r.Header["Sec-Websocket-Protocol"]) > 0 {
+		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+		conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+		conn.WriteMessage(websocket.TextMessage, []byte("Sec-Websocket-Protocol: "+r.Header["Sec-Websocket-Protocol"][0]))
+		conn.Close()
+		return nil
 	}
 
 	log.Debugf("Rec connection from %s", conn.RemoteAddr())

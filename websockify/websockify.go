@@ -33,6 +33,7 @@ func (c Websockify) WS(w http.ResponseWriter, r *http.Request) (err error) {
 	if len(r.Header["Sec-Websocket-Protocol"]) > 0 {
 		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 		conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+		w.Header().Set("Sec-Websocket-Protocol", r.Header["Sec-Websocket-Protocol"][0])
 		conn.WriteMessage(websocket.TextMessage, []byte("Sec-Websocket-Protocol: "+r.Header["Sec-Websocket-Protocol"][0]))
 		conn.Close()
 		return nil

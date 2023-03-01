@@ -20,7 +20,7 @@ type Websockify struct {
 // Set the target in the websockify struct, this is for compatibility with http.HandleFunc
 func (c Websockify) WS(w http.ResponseWriter, r *http.Request) (err error) {
 	// Upgrade connection
-	upgrader := websocket.Upgrader{Subprotocols: []string{"binary"}}
+	upgrader := websocket.Upgrader{Subprotocols: []string{"binary"}, CheckOrigin: originCheckFunc}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err
@@ -75,4 +75,9 @@ func (c Websockify) WSNoErr(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Errorln(err)
 	}
+}
+
+func originCheckFunc(r *http.Request) bool {
+	log.Tracef("Origin: %v Host: %v", r.Header.Get("Origin"), r.Host)
+	return true
 }
